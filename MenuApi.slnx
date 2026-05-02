@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/MenuApi.Api/MenuApi.Api.csproj" />
+    <Project Path="src/MenuApi.Application/MenuApi.Application.csproj" />
+    <Project Path="src/MenuApi.Domain/MenuApi.Domain.csproj" />
+    <Project Path="src/MenuApi.Infrastructure/MenuApi.Infrastructure.csproj" />
   </Folder>
 </Solution>
