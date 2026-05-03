@@ -1,4 +1,4 @@
-﻿namespace MenuApi.Api.Dtos;
+﻿namespace MenuApi.Application.Dtos;
 
 public class MenuSectionDto
 {

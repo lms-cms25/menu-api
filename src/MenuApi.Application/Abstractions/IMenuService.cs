@@ -1,7 +1,7 @@
-﻿using MenuApi.Api.Dtos;
+﻿using MenuApi.Application.Dtos;
 using MenuApi.Application.Common;
 
-namespace MenuApi.Api.Abstractions;
+namespace MenuApi.Application.Abstractions;
 
 public interface IMenuService
 {
