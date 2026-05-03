@@ -1,6 +1,7 @@
 ﻿using MenuApi.Application.Abstractions;
-using MenuApi.Application.Dtos;
 using MenuApi.Application.Common;
+using MenuApi.Application.Dtos;
+using MenuApi.Domain.Entities;
 
 
 namespace MenuApi.Application.Services;
@@ -9,47 +10,51 @@ public class MenuService(IMenuRepository repository, IIdentityService identitySe
 {
 
     public async Task<Result<MenuResponseDto>> GetMenuForUserAsync()
+{
+    try
     {
-        try
-        {
-            // 1. Hämta rollerna direkt från vår nya tjänst istället för via parameter
-            var userRoles = identityService.GetUserRoles();
+        var userRoles = identityService.GetUserRoles();
+        var allMenus = await repository.GetAllMenusAsync();
+        var rawMenu = allMenus.FirstOrDefault();
 
-            // 2. Hämta rådatan från repositoryt
-            var allMenus = await repository.GetAllMenusAsync();
-            var rawMenu = allMenus.FirstOrDefault();
+        if (rawMenu == null) return Result<MenuResponseDto>.Success(new MenuResponseDto());
 
-            if (rawMenu == null)
+        // Här använder vi din FilterMenuItems-metod!
+        var filteredSections = rawMenu.MenuSections
+            .Where(s => s.Roles.Count == 0 || s.Roles.Intersect(userRoles).Any())
+            .Select(s => new MenuSectionDto
             {
-                return Result<MenuResponseDto>.Success(new MenuResponseDto());
-            }
+                Title = s.Title,
+                // ANROP TILL DIN HJÄLPMETOD:
+                Items = FilterMenuItems(s.MenuItems, userRoles) 
+            })
+            .Where(s => s.Items.Any())
+            .ToList();
 
-            // 3. Filtrera och mappa baserat på userRoles vi hämtade i steg 1
-            var filteredSections = rawMenu.MenuSections
-                .Where(s => s.Roles.Intersect(userRoles).Any())
-                .Select(s => new MenuSectionDto
-                {
-                    Title = s.Title,
-                    Items = s.MenuItems
-                        .Where(i => i.Roles.Intersect(userRoles).Any())
-                        .Select(i => new MenuItemDto
-                        {
-                            Title = i.Title,
-                            Href = i.Href,
-                            Icon = i.Icon
-                        }).ToList()
-                })
-                .Where(s => s.Items.Any())
-                .ToList();
+        return Result<MenuResponseDto>.Success(new MenuResponseDto { Sections = filteredSections });
+    }
+    catch (Exception ex)
+    {
+        return Result<MenuResponseDto>.Failure($"Kunde inte generera menyn: {ex.Message}");
+    }
+}
 
-            var response = new MenuResponseDto { Sections = filteredSections };
-
-            return Result<MenuResponseDto>.Success(response);
-        }
-        catch (Exception ex)
-        {
-            // Om något går snett (t.ex. databasen är nere)
-            return Result<MenuResponseDto>.Failure($"Kunde inte generera menyn: {ex.Message}");
-        }
+    private List<MenuItemDto> FilterMenuItems(List<MenuItem> items, List<string> userRoles)
+    {
+        return items
+            // 1. Filtrera: Har användaren rätt roll? (Om inga roller krävs, visa för alla)
+            .Where(i => i.AllowedRoles.Count == 0 || i.AllowedRoles.Intersect(userRoles).Any())
+            // 2. Sortera
+            .OrderBy(i => i.SortOrder)
+            // 3. Mappa till DTO
+            .Select(i => new MenuItemDto
+            {
+                Title = i.Title,
+                Href = i.Href,
+                Icon = i.Icon,
+                // 4. REKURSION: Kör samma check på alla subitems
+                SubItems = FilterMenuItems(i.SubItems, userRoles)
+            })
+            .ToList();
     }
 }

@@ -2,7 +2,11 @@
 
 public class MenuSection
 {
-    public string Title { get; set; } = null!;
-    public List<MenuItem> MenuItems { get; set; } = [];
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public int SortOrder { get; set; }
+
+
     public List<string> Roles { get; set; } = [];
+    public List<MenuItem> MenuItems { get; set; } = [];
 }
