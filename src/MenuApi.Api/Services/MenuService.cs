@@ -5,26 +5,26 @@ using MenuApi.Application.Common;
 
 namespace MenuApi.Api.Services;
 
-public class MenuService(IMenuRepository repository) : IMenuService
+public class MenuService(IMenuRepository repository, IIdentityService identityService) : IMenuService
 {
 
-    public async Task<Result<MenuResponseDto>> GetMenuForUserAsync(List<string> userRoles)
+    public async Task<Result<MenuResponseDto>> GetMenuForUserAsync()
     {
         try
         {
-            // 1. Hämta rådatan
-            var allMenus = await repository.GetAllMenusAsync();
+            // 1. Hämta rollerna direkt från vår nya tjänst istället för via parameter
+            var userRoles = identityService.GetUserRoles();
 
+            // 2. Hämta rådatan från repositoryt
+            var allMenus = await repository.GetAllMenusAsync();
             var rawMenu = allMenus.FirstOrDefault();
 
-            // Om ingen meny finns, är det ett fel eller bara en tom framgång?
-            // Här kör vi på en "Success" men med tom data.
             if (rawMenu == null)
             {
                 return Result<MenuResponseDto>.Success(new MenuResponseDto());
             }
 
-            // 2. Filtrera och mappa
+            // 3. Filtrera och mappa baserat på userRoles vi hämtade i steg 1
             var filteredSections = rawMenu.MenuSections
                 .Where(s => s.Roles.Intersect(userRoles).Any())
                 .Select(s => new MenuSectionDto
@@ -44,7 +44,6 @@ public class MenuService(IMenuRepository repository) : IMenuService
 
             var response = new MenuResponseDto { Sections = filteredSections };
 
-            // 3. Returnera med Success-wrapper
             return Result<MenuResponseDto>.Success(response);
         }
         catch (Exception ex)
