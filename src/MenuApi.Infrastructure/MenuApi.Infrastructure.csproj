@@ -11,4 +11,9 @@
     <ProjectReference Include="..\MenuApi.Domain\MenuApi.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\Configurations\" />
+    <Folder Include="Persistence\Repositories\" />
+  </ItemGroup>
+
 </Project>
