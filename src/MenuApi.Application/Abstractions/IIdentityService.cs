@@ -1,4 +1,4 @@
-﻿namespace MenuApi.Api.Abstractions;
+﻿namespace MenuApi.Application.Abstractions;
 
 public interface IIdentityService
 {
