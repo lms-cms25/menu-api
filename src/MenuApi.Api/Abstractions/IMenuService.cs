@@ -5,5 +5,5 @@ namespace MenuApi.Api.Abstractions;
 
 public interface IMenuService
 {
-    Task<Result<MenuResponseDto>> GetMenuForUserAsync(List<string> roles);
+    Task<Result<MenuResponseDto>> GetMenuForUserAsync();
 }
