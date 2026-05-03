@@ -1,7 +1,7 @@
 ﻿using MenuApi.Application.Abstractions;
 using MenuApi.Domain.Entities;
 
-namespace MenuApi.Application;
+namespace MenuApi.Infrastructure.Persistence;
 
 public class MockMenuRepository : IMenuRepository
 {

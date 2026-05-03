@@ -1,4 +1,4 @@
-﻿using MenuApi.Api.Abstractions;
+﻿using MenuApi.Application.Abstractions;
 
 namespace MenuApi.Api.Endpoints;
 

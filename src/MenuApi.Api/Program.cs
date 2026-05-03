@@ -1,19 +1,20 @@
-using MenuApi.Api.Abstractions;
 using MenuApi.Api.Endpoints;
 using MenuApi.Api.OpenApi;
 using MenuApi.Api.Security;
-using MenuApi.Api.Services;
-using MenuApi.Application;
-using MenuApi.Application.Abstractions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using System.Text;
+using MenuApi.Application;
+using MenuApi.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Convert.FromBase64String(jwtSettings["SigningKey"]!);
+
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -42,15 +43,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddCorsConfiguration();
 builder.Services.AddOpenApiConfiguration();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IIdentityService, IdentityService>();
-builder.Services.AddScoped<IMenuRepository, MockMenuRepository>();
-builder.Services.AddScoped<IMenuService, MenuService>();
 
 var app = builder.Build();
 
@@ -60,8 +60,7 @@ app.MapScalarApiReference();
 app.UseCors("All");
 app.MapOpenApi();
 app.UseHttpsRedirection();
-app.UseAuthentication(); 
-app.UseAuthorization();
+
 
 app.MapMenuEndpoints();
 

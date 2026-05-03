@@ -1,9 +1,9 @@
-﻿using MenuApi.Api.Abstractions;
-using MenuApi.Api.Dtos;
-using MenuApi.Application.Abstractions;
+﻿using MenuApi.Application.Abstractions;
+using MenuApi.Application.Dtos;
 using MenuApi.Application.Common;
 
-namespace MenuApi.Api.Services;
+
+namespace MenuApi.Application.Services;
 
 public class MenuService(IMenuRepository repository, IIdentityService identityService) : IMenuService
 {

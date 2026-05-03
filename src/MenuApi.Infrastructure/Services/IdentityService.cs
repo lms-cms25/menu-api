@@ -1,13 +1,18 @@
-﻿using MenuApi.Api.Abstractions;
+﻿using MenuApi.Application.Abstractions;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-namespace MenuApi.Api.Services;
+namespace MenuApi.Infrastructure.Services;
 
 public class IdentityService(IHttpContextAccessor httpContextAccessor) : IIdentityService
 {
-    private readonly ClaimsPrincipal? _user = httpContextAccessor.HttpContext?.User;
 
-    public string? UserId => _user?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    //public string? UserId => _user?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    private readonly ClaimsPrincipal? _user = httpContextAccessor.HttpContext?.User;
+    public string? UserId => _user?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
 
     public bool IsAuthenticated => _user?.Identity?.IsAuthenticated ?? false;
 
